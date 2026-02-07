@@ -1,0 +1,62 @@
+#!/bin/bash
+# Caffeine replacement using gnome-session-inhibit
+# Prevents idle sleep while running
+
+ICON_ACTIVE="☕"
+ICON_INACTIVE="💤"
+STATE_FILE="/tmp/caffeine-fix-state"
+
+toggle() {
+    if pgrep -f "gnome-session-inhibit.*caffeine-fix-active" > /dev/null; then
+        # Currently active - deactivate
+        pkill -f "gnome-session-inhibit.*caffeine-fix-active"
+        rm -f "$STATE_FILE"
+        notify-send "Caffeine" "Sleep inhibit disabled" -i caffeine-cup-empty -t 2000
+        echo "Caffeine OFF"
+    else
+        # Currently inactive - activate
+        nohup gnome-session-inhibit \
+            --app-id caffeine-fix-active \
+            --reason "Preventing system sleep" \
+            --inhibit idle \
+            --inhibit-only > /dev/null 2>&1 &
+        echo "active" > "$STATE_FILE"
+        notify-send "Caffeine" "Sleep inhibit enabled" -i caffeine-cup-full -t 2000
+        echo "Caffeine ON"
+    fi
+}
+
+status() {
+    if pgrep -f "gnome-session-inhibit.*caffeine-fix-active" > /dev/null; then
+        echo "$ICON_ACTIVE Caffeine ACTIVE - sleep prevented"
+        return 0
+    else
+        echo "$ICON_INACTIVE Caffeine INACTIVE - normal sleep"
+        return 1
+    fi
+}
+
+case "$1" in
+    on)
+        if ! pgrep -f "gnome-session-inhibit.*caffeine-fix-active" > /dev/null; then
+            toggle
+        fi
+        ;;
+    off)
+        if pgrep -f "gnome-session-inhibit.*caffeine-fix-active" > /dev/null; then
+            toggle
+        fi
+        ;;
+    toggle)
+        toggle
+        ;;
+    status)
+        status
+        ;;
+    *)
+        echo "Usage: $0 {on|off|toggle|status}"
+        echo ""
+        status
+        exit 1
+        ;;
+esac
