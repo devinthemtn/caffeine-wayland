@@ -191,3 +191,4 @@ If this doesn't work for your setup, consider:
 - [Caffeine](https://launchpad.net/caffeine) - Original X11 version
 - [Caffeine-ng](https://codeberg.org/WhyNotHugo/caffeine-ng) - Next-generation caffeine
 - Manual use of `gnome-session-inhibit` or `systemd-inhibit`
+- [gnome-shell-extension-caffeine](https://extensions.gnome.org/extension/517/caffeine/) -- Caffeine implemented as a GNOME Shell Extension.
