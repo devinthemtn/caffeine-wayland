@@ -15,7 +15,7 @@ A simple, lightweight caffeine/stay-awake utility for Linux systems running Wayl
 
 ### 1. System Tray Indicator (`caffeine-fix-indicator`)
 A Python-based system tray application that provides a visual interface with:
-- Coffee cup icon that changes based on active/inactive status
+- Tray icon that changes with status (green check = active, grey X = inactive)
 - Click to toggle sleep prevention on/off
 - Status display in the menu
 - Desktop notifications
@@ -32,23 +32,22 @@ A bash script for command-line control with commands:
 ### System Dependencies
 - **GNOME Session** - Uses `gnome-session-inhibit` for sleep prevention
 - **Python 3** - For the indicator application
-- **GTK 3** - For the system tray interface
-- **AyatanaAppIndicator3** - For system tray support
+- **libayatana-appindicator-glib** (`AyatanaAppIndicatorGlib` 2.0) - For the system tray icon and menu (no GTK required)
 - **notify-send** - For desktop notifications (optional)
 
 ### Ubuntu/Debian
 ```bash
-sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1 gnome-session libnotify-bin
+sudo apt install python3-gi gir1.2-ayatanaappindicatorglib-2.0 gnome-session libnotify-bin
 ```
 
 ### Fedora
 ```bash
-sudo dnf install python3-gobject gtk3 libayatana-appindicator-gtk3 gnome-session libnotify
+sudo dnf install python3-gobject libayatana-appindicator-glib gnome-session libnotify
 ```
 
 ### Arch Linux
 ```bash
-sudo pacman -S python-gobject gtk3 libayatana-appindicator gnome-session libnotify
+sudo pacman -S python-gobject libayatana-appindicator-glib gnome-session libnotify
 ```
 
 ## Installation
@@ -59,29 +58,32 @@ sudo pacman -S python-gobject gtk3 libayatana-appindicator gnome-session libnoti
 ```
 
 This will:
-- Copy scripts to `~/.local/bin/`
+- Copy scripts to `~/bin/`
 - Set executable permissions
 - Create desktop entry for autostart (optional)
-- Install tray icons
+- Install tray icons to `~/.local/share/icons/hicolor/scalable/apps/`
+- Check for required dependencies
 
 ### Manual Installation
 
 1. **Copy the scripts:**
    ```bash
-   mkdir -p ~/.local/bin
-   cp caffeine-fix ~/.local/bin/
-   cp caffeine-fix-indicator ~/.local/bin/
-   chmod +x ~/.local/bin/caffeine-fix
-   chmod +x ~/.local/bin/caffeine-fix-indicator
+   mkdir -p ~/bin
+   cp caffeine-fix ~/bin/
+   cp caffeine-fix-indicator ~/bin/
+   chmod +x ~/bin/caffeine-fix
+   chmod +x ~/bin/caffeine-fix-indicator
    ```
 
-2. **Ensure `~/.local/bin` is in your PATH:**
+2. **Ensure `~/bin` is in your PATH:**
+
+   On Ubuntu/Debian, `~/.profile` adds `~/bin` to your PATH automatically if it exists
+   (log out and back in after creating it). Otherwise add it to your shell config:
    ```bash
-   echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-   source ~/.bashrc
+   echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc   # or ~/.zshrc
    ```
 
-3. **Install icons (optional):**
+3. **Install the tray icons:**
    ```bash
    ./install-icons.sh
    ```
@@ -122,18 +124,18 @@ To start the indicator automatically on login:
    - Open "Startup Applications"
    - Add a new entry:
      - Name: `Caffeine Fix`
-     - Command: `/home/YOUR_USERNAME/.local/bin/caffeine-fix-indicator`
+     - Command: `/home/YOUR_USERNAME/bin/caffeine-fix-indicator`
      - Comment: `Prevent system sleep`
 
 2. **Manual Desktop Entry:**
    ```bash
    mkdir -p ~/.config/autostart
-   cat > ~/.config/autostart/caffeine-fix.desktop << 'EOF'
+   cat > ~/.config/autostart/caffeine-fix-indicator.desktop << EOF
    [Desktop Entry]
    Type=Application
-   Name=Caffeine Fix
+   Name=Caffeine Fix Indicator
    Comment=Prevent system sleep
-   Exec=caffeine-fix-indicator
+   Exec=$HOME/bin/caffeine-fix-indicator
    Icon=caffeine-inactive
    Terminal=false
    Categories=Utility;
@@ -155,7 +157,8 @@ Normal sleep prevention still works (like closing the laptop lid or manual suspe
 ## Troubleshooting
 
 ### Indicator doesn't show in system tray
-- Ensure you have `gir1.2-ayatanaappindicator3-0.1` installed
+- Ensure you have `gir1.2-ayatanaappindicatorglib-2.0` installed (Ubuntu/Debian)
+- On GNOME, make sure the AppIndicator extension is enabled (`ubuntu-appindicators@ubuntu.com` on Ubuntu)
 - Try restarting your session after installation
 - Check if your desktop environment supports system tray icons
 
@@ -183,7 +186,7 @@ MIT License - See LICENSE file for details
 
 - Inspired by the original Caffeine application for X11
 - Uses GNOME Session Manager APIs for Wayland compatibility
-- Icons: Coffee cup emoji (☕) and sleeping emoji (💤)
+- CLI status uses the coffee cup (☕) and sleeping (💤) emoji
 
 ## Alternatives
 
