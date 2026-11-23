@@ -81,18 +81,19 @@ check_command "notify-send" || echo -e "${YELLOW}⚠${NC}  notify-send not found
 echo ""
 echo "Checking Python dependencies..."
 python3 -c "import gi" 2>/dev/null && echo -e "${GREEN}✓${NC} Python GObject bindings found" || { echo -e "${YELLOW}✗${NC} Python GObject bindings not found"; ALL_DEPS_OK=false; }
-python3 -c "import gi; gi.require_version('AyatanaAppIndicatorGlib', '2.0')" 2>/dev/null && echo -e "${GREEN}✓${NC} AyatanaAppIndicatorGlib found" || { echo -e "${YELLOW}✗${NC} AyatanaAppIndicatorGlib not found"; ALL_DEPS_OK=false; }
+python3 -c "import gi; gi.require_version('Gtk', '3.0')" 2>/dev/null && echo -e "${GREEN}✓${NC} GTK 3 found" || { echo -e "${YELLOW}✗${NC} GTK 3 not found"; ALL_DEPS_OK=false; }
+python3 -c "import gi; gi.require_version('AyatanaAppIndicator3', '0.1')" 2>/dev/null && echo -e "${GREEN}✓${NC} AyatanaAppIndicator3 found" || { echo -e "${YELLOW}✗${NC} AyatanaAppIndicator3 not found"; ALL_DEPS_OK=false; }
 
 if [ "$ALL_DEPS_OK" = false ]; then
     echo ""
     echo -e "${YELLOW}⚠${NC}  Some dependencies are missing. Install them with:"
     echo ""
     if command -v apt &> /dev/null; then
-        echo "  sudo apt install python3-gi gir1.2-ayatanaappindicatorglib-2.0 gnome-session libnotify-bin"
+        echo "  sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1 gnome-session libnotify-bin"
     elif command -v dnf &> /dev/null; then
-        echo "  sudo dnf install python3-gobject libayatana-appindicator-glib gnome-session libnotify"
+        echo "  sudo dnf install python3-gobject gtk3 libayatana-appindicator-gtk3 gnome-session libnotify"
     elif command -v pacman &> /dev/null; then
-        echo "  sudo pacman -S python-gobject libayatana-appindicator-glib gnome-session libnotify"
+        echo "  sudo pacman -S python-gobject gtk3 libayatana-appindicator gnome-session libnotify"
     fi
 fi
 

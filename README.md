@@ -32,22 +32,23 @@ A bash script for command-line control with commands:
 ### System Dependencies
 - **GNOME Session** - Uses `gnome-session-inhibit` for sleep prevention
 - **Python 3** - For the indicator application
-- **libayatana-appindicator-glib** (`AyatanaAppIndicatorGlib` 2.0) - For the system tray icon and menu (no GTK required)
+- **GTK 3** - For the system tray menu
+- **AyatanaAppIndicator3** - For system tray support (the GLib-only `AyatanaAppIndicatorGlib` is not used because the GNOME AppIndicator extension can't show its menu)
 - **notify-send** - For desktop notifications (optional)
 
 ### Ubuntu/Debian
 ```bash
-sudo apt install python3-gi gir1.2-ayatanaappindicatorglib-2.0 gnome-session libnotify-bin
+sudo apt install python3-gi gir1.2-gtk-3.0 gir1.2-ayatanaappindicator3-0.1 gnome-session libnotify-bin
 ```
 
 ### Fedora
 ```bash
-sudo dnf install python3-gobject libayatana-appindicator-glib gnome-session libnotify
+sudo dnf install python3-gobject gtk3 libayatana-appindicator-gtk3 gnome-session libnotify
 ```
 
 ### Arch Linux
 ```bash
-sudo pacman -S python-gobject libayatana-appindicator-glib gnome-session libnotify
+sudo pacman -S python-gobject gtk3 libayatana-appindicator gnome-session libnotify
 ```
 
 ## Installation
@@ -157,7 +158,7 @@ Normal sleep prevention still works (like closing the laptop lid or manual suspe
 ## Troubleshooting
 
 ### Indicator doesn't show in system tray
-- Ensure you have `gir1.2-ayatanaappindicatorglib-2.0` installed (Ubuntu/Debian)
+- Ensure you have `gir1.2-ayatanaappindicator3-0.1` installed (Ubuntu/Debian)
 - On GNOME, make sure the AppIndicator extension is enabled (`ubuntu-appindicators@ubuntu.com` on Ubuntu)
 - Try restarting your session after installation
 - Check if your desktop environment supports system tray icons

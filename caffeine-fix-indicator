@@ -5,8 +5,9 @@ Uses gnome-session-inhibit to actually prevent sleep
 """
 
 import gi
-gi.require_version('AyatanaAppIndicatorGlib', '2.0')
-from gi.repository import Gio, GLib, AyatanaAppIndicatorGlib as AppIndicator
+gi.require_version('Gtk', '3.0')
+gi.require_version('AyatanaAppIndicator3', '0.1')
+from gi.repository import Gtk, GLib, AyatanaAppIndicator3 as AppIndicator
 import subprocess
 import signal
 import os
@@ -21,9 +22,11 @@ ICON_PATH = os.path.expanduser("~/.local/share/icons/hicolor/scalable/apps")
 INHIBIT_PATTERN = r"^([^ ]*/)?gnome-session-inhibit --app-id caffeine-fix-active( |$)"
 
 
+# Note: AyatanaAppIndicator3 (GTK 3) is used rather than AyatanaAppIndicatorGlib
+# because the latter exports its menu over org.gtk.Menus, which the GNOME
+# AppIndicator extension cannot display -- only com.canonical.dbusmenu works.
 class CaffeineIndicator:
-    def __init__(self, loop):
-        self.loop = loop
+    def __init__(self):
         self.inhibit_process = None
 
         # Create AppIndicator with icon path
@@ -36,35 +39,28 @@ class CaffeineIndicator:
         self.indicator.set_status(AppIndicator.IndicatorStatus.ACTIVE)
         self.indicator.set_title("Caffeine Fix")
 
-        # Actions (menu items reference these as "indicator.<name>")
-        self.actions = Gio.SimpleActionGroup.new()
+        # Create menu
+        self.menu = Gtk.Menu()
 
-        # Status item is shown greyed out by giving it a disabled action
-        status_action = Gio.SimpleAction.new("status", None)
-        status_action.set_enabled(False)
-        self.actions.add_action(status_action)
+        # Status item (non-clickable)
+        self.status_item = Gtk.MenuItem(label="Status: Inactive")
+        self.status_item.set_sensitive(False)
+        self.menu.append(self.status_item)
+        self.menu.append(Gtk.SeparatorMenuItem())
 
-        toggle_action = Gio.SimpleAction.new("toggle", None)
-        toggle_action.connect("activate", self.on_toggle)
-        self.actions.add_action(toggle_action)
+        # Toggle item
+        self.toggle_item = Gtk.MenuItem(label="Enable")
+        self.toggle_item.connect("activate", self.on_toggle)
+        self.menu.append(self.toggle_item)
+        self.menu.append(Gtk.SeparatorMenuItem())
 
-        quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", self.on_quit)
-        self.actions.add_action(quit_action)
+        # Quit item
+        quit_item = Gtk.MenuItem(label="Quit")
+        quit_item.connect("activate", self.on_quit)
+        self.menu.append(quit_item)
 
-        # Menu: sections are rendered with separators between them
-        self.status_section = Gio.Menu.new()
-        self.toggle_section = Gio.Menu.new()
-        quit_section = Gio.Menu.new()
-        quit_section.append("Quit", "indicator.quit")
-
-        self.menu = Gio.Menu.new()
-        self.menu.append_section(None, self.status_section)
-        self.menu.append_section(None, self.toggle_section)
-        self.menu.append_section(None, quit_section)
-
+        self.menu.show_all()
         self.indicator.set_menu(self.menu)
-        self.indicator.set_actions(self.actions)
 
         self.last_state = None
 
@@ -78,18 +74,13 @@ class CaffeineIndicator:
         if is_active != self.last_state:
             self.last_state = is_active
             if is_active:
-                self.indicator.set_icon(ICON_ACTIVE, "Caffeine Active")
-                status_label = "Status: Active (preventing sleep)"
-                toggle_label = "Disable"
+                self.indicator.set_icon_full(ICON_ACTIVE, "Caffeine Active")
+                self.status_item.set_label("Status: Active (preventing sleep)")
+                self.toggle_item.set_label("Disable")
             else:
-                self.indicator.set_icon(ICON_INACTIVE, "Caffeine Inactive")
-                status_label = "Status: Inactive (normal sleep)"
-                toggle_label = "Enable"
-
-            self.status_section.remove_all()
-            self.status_section.append(status_label, "indicator.status")
-            self.toggle_section.remove_all()
-            self.toggle_section.append(toggle_label, "indicator.toggle")
+                self.indicator.set_icon_full(ICON_INACTIVE, "Caffeine Inactive")
+                self.status_item.set_label("Status: Inactive (normal sleep)")
+                self.toggle_item.set_label("Enable")
 
         return True  # Continue periodic checking
 
@@ -104,7 +95,7 @@ class CaffeineIndicator:
         except Exception:
             return False
 
-    def on_toggle(self, action=None, param=None):
+    def on_toggle(self, widget=None):
         """Toggle caffeine on/off"""
         if self.is_active():
             # Disable
@@ -143,7 +134,7 @@ class CaffeineIndicator:
         except Exception:
             pass
 
-    def on_quit(self, action=None, param=None):
+    def on_quit(self, widget=None):
         """Quit the indicator"""
         # Optionally disable caffeine before quitting
         # Uncomment next 4 lines if you want caffeine to turn off when quitting
@@ -152,20 +143,19 @@ class CaffeineIndicator:
         #         subprocess.run(["pkill", "-f", INHIBIT_PATTERN])
         #     except Exception:
         #         pass
-        self.loop.quit()
+        Gtk.main_quit()
 
 
 def main():
     # Handle Ctrl+C gracefully
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    loop = GLib.MainLoop.new(None, False)
-    indicator = CaffeineIndicator(loop)
+    indicator = CaffeineIndicator()
 
     # Periodic state check every 5 seconds
     GLib.timeout_add_seconds(5, indicator.check_state)
 
-    loop.run()
+    Gtk.main()
 
 
 if __name__ == "__main__":
