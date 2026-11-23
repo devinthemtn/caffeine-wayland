@@ -1,4 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-  <circle cx="12" cy="12" r="10" fill="#4CAF50"/>
-  <path d="M8 12 L11 15 L16 9" stroke="white" stroke-width="2" fill="none"/>
+  <!-- steam -->
+  <g fill="none" stroke="#BCAAA4" stroke-width="1.8" stroke-linecap="round">
+    <path d="M9 7.5 C7.8 6.3 10.2 5 9 3"/>
+    <path d="M13 7.5 C11.8 6.3 14.2 5 13 3"/>
+  </g>
+  <!-- saucer -->
+  <ellipse cx="11" cy="20" rx="8.5" ry="1.9" fill="#4FA3F7" stroke="#1E6FD9" stroke-width="1.4"/>
+  <!-- handle -->
+  <path d="M15.8 11.5 H17.2 A2 2 0 0 1 17.2 15.5 H15.4" fill="none" stroke="#8D6E63" stroke-width="1.7"/>
+  <!-- espresso cup -->
+  <path d="M6 9.5 H16 V13 C16 16.2 14 18.2 11 18.2 C8 18.2 6 16.2 6 13 Z"
+        fill="#FBF7F2" stroke="#8D6E63" stroke-width="1.6" stroke-linejoin="round"/>
+  <!-- espresso surface -->
+  <ellipse cx="11" cy="10" rx="4.3" ry="1" fill="#5D4037"/>
 </svg>

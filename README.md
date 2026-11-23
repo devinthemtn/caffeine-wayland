@@ -15,7 +15,7 @@ A simple, lightweight caffeine/stay-awake utility for Linux systems running Wayl
 
 ### 1. System Tray Indicator (`caffeine-fix-indicator`)
 A Python-based system tray application that provides a visual interface with:
-- Tray icon that changes with status (green check = active, grey X = inactive)
+- Espresso cup tray icon that changes with status (steaming cup on a blue saucer = active, empty grey cup = inactive)
 - Click to toggle sleep prevention on/off
 - Status display in the menu
 - Desktop notifications
