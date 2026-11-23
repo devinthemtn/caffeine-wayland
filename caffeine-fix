@@ -5,11 +5,15 @@
 ICON_ACTIVE="☕"
 ICON_INACTIVE="💤"
 STATE_FILE="/tmp/caffeine-fix-state"
+# Match only the inhibitor process itself: its command line must *start* with
+# gnome-session-inhibit (optionally with a path) followed by our app id, so
+# shells or editors that merely mention this text are never matched or killed.
+INHIBIT_PATTERN='^([^ ]*/)?gnome-session-inhibit --app-id caffeine-fix-active( |$)'
 
 toggle() {
-    if pgrep -f "gnome-session-inhibit.*caffeine-fix-active" > /dev/null; then
+    if pgrep -f "$INHIBIT_PATTERN" > /dev/null; then
         # Currently active - deactivate
-        pkill -f "gnome-session-inhibit.*caffeine-fix-active"
+        pkill -f "$INHIBIT_PATTERN"
         rm -f "$STATE_FILE"
         notify-send "Caffeine" "Sleep inhibit disabled" -i caffeine-cup-empty -t 2000
         echo "Caffeine OFF"
@@ -27,7 +31,7 @@ toggle() {
 }
 
 status() {
-    if pgrep -f "gnome-session-inhibit.*caffeine-fix-active" > /dev/null; then
+    if pgrep -f "$INHIBIT_PATTERN" > /dev/null; then
         echo "$ICON_ACTIVE Caffeine ACTIVE - sleep prevented"
         return 0
     else
@@ -38,12 +42,12 @@ status() {
 
 case "$1" in
     on)
-        if ! pgrep -f "gnome-session-inhibit.*caffeine-fix-active" > /dev/null; then
+        if ! pgrep -f "$INHIBIT_PATTERN" > /dev/null; then
             toggle
         fi
         ;;
     off)
-        if pgrep -f "gnome-session-inhibit.*caffeine-fix-active" > /dev/null; then
+        if pgrep -f "$INHIBIT_PATTERN" > /dev/null; then
             toggle
         fi
         ;;

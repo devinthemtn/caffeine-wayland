@@ -15,6 +15,10 @@ APP_ID = "caffeine-fix"
 ICON_ACTIVE = "caffeine-active"
 ICON_INACTIVE = "caffeine-inactive"
 ICON_PATH = os.path.expanduser("~/.local/share/icons/hicolor/scalable/apps")
+# Match only the inhibitor process itself: its command line must *start* with
+# gnome-session-inhibit (optionally with a path) followed by our app id, so
+# shells or editors that merely mention this text are never matched or killed.
+INHIBIT_PATTERN = r"^([^ ]*/)?gnome-session-inhibit --app-id caffeine-fix-active( |$)"
 
 
 class CaffeineIndicator:
@@ -93,7 +97,7 @@ class CaffeineIndicator:
         """Check if caffeine is currently active"""
         try:
             result = subprocess.run(
-                ["pgrep", "-f", "gnome-session-inhibit.*caffeine-fix-active"],
+                ["pgrep", "-f", INHIBIT_PATTERN],
                 capture_output=True
             )
             return result.returncode == 0
@@ -105,7 +109,7 @@ class CaffeineIndicator:
         if self.is_active():
             # Disable
             try:
-                subprocess.run(["pkill", "-f", "gnome-session-inhibit.*caffeine-fix-active"])
+                subprocess.run(["pkill", "-f", INHIBIT_PATTERN])
                 self.inhibit_process = None
                 self.show_notification("Caffeine disabled", "System will sleep normally")
             except Exception as e:
@@ -145,7 +149,7 @@ class CaffeineIndicator:
         # Uncomment next 4 lines if you want caffeine to turn off when quitting
         # if self.is_active():
         #     try:
-        #         subprocess.run(["pkill", "-f", "gnome-session-inhibit.*caffeine-fix-active"])
+        #         subprocess.run(["pkill", "-f", INHIBIT_PATTERN])
         #     except Exception:
         #         pass
         self.loop.quit()
