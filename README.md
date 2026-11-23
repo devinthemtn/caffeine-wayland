@@ -1,4 +1,4 @@
-# Caffeine Fix for Wayland
+# <img src="icons/caffeine-inactive.svg" alt="" width="40" height="40" align="center"> Caffeine Fix for Wayland <img src="icons/caffeine-active.svg" alt="" width="40" height="40" align="center">
 
 A simple, lightweight caffeine/stay-awake utility for Linux systems running Wayland, particularly GNOME. This tool prevents your system from going to sleep or locking the screen, perfect for presentations, watching videos, or any time you need to keep your system active.
 
